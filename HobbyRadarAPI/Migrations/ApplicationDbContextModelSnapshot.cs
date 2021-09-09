@@ -19,6 +19,140 @@ namespace HobbyRadarAPI.Migrations
                 .HasAnnotation("ProductVersion", "5.0.9")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("HobbyRadarAPI.Models.Connection", b =>
+                {
+                    b.Property<string>("User1Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("User2Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("User1Id", "User2Id");
+
+                    b.ToTable("Connections");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.ConnectionInvite", b =>
+                {
+                    b.Property<int>("ConnectionInviteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Accepted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("DateSent")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Dismissed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("FromUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ToUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ConnectionInviteId");
+
+                    b.HasIndex("FromUserId");
+
+                    b.HasIndex("ToUserId");
+
+                    b.ToTable("ConnectionInvites");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.EventAttendance", b =>
+                {
+                    b.Property<int>("ScheduledEventId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ScheduledEventId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("EventAttendances");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.Hobby", b =>
+                {
+                    b.Property<int>("HobbyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("HobbyId");
+
+                    b.ToTable("Hobbies");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.HobbyTag", b =>
+                {
+                    b.Property<int>("HobbyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("HobbyId", "TagId");
+
+                    b.ToTable("HobbyTags");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.ScheduledEvent", b =>
+                {
+                    b.Property<int>("ScheduledEventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("HobbyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ScheduledEventId");
+
+                    b.HasIndex("HobbyId");
+
+                    b.ToTable("ScheduledEvents");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.Tag", b =>
+                {
+                    b.Property<int>("TagId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TagId");
+
+                    b.ToTable("Tags");
+                });
+
             modelBuilder.Entity("HobbyRadarAPI.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -90,6 +224,61 @@ namespace HobbyRadarAPI.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("HobbyRadarAPI.Models.UserAlert", b =>
+                {
+                    b.Property<int>("UserAlertId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Dismissed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Method")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserAlertId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAlerts");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.UserHobby", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("HobbyId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "HobbyId");
+
+                    b.ToTable("UserHobbies");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.UserHobbyRating", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("HobbyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "HobbyId");
+
+                    b.ToTable("UserHobbyRating");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -119,15 +308,15 @@ namespace HobbyRadarAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "ad94a4e5-2c6f-4a89-bb72-516a0ac40862",
-                            ConcurrencyStamp = "0a47f583-c316-4328-b14a-e6914f3a45ec",
+                            Id = "45081da8-4876-4f8b-87d5-be9603330a19",
+                            ConcurrencyStamp = "0822ffe7-c2d9-4b25-976a-91f0a4c6cc54",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "d033aaf0-96cf-42b3-bb67-81b56975d928",
-                            ConcurrencyStamp = "c6b8337e-f248-4350-bbc7-f8a6f18cd754",
+                            Id = "ce8ad868-86d6-464f-b7f7-9f9f4d671d0b",
+                            ConcurrencyStamp = "59d62888-9d59-497f-8232-7393eba9ff6a",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -237,6 +426,52 @@ namespace HobbyRadarAPI.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("HobbyRadarAPI.Models.ConnectionInvite", b =>
+                {
+                    b.HasOne("HobbyRadarAPI.Models.User", "FromUser")
+                        .WithMany("InvitesReceived")
+                        .HasForeignKey("FromUserId");
+
+                    b.HasOne("HobbyRadarAPI.Models.User", "ToUser")
+                        .WithMany("InvitesSent")
+                        .HasForeignKey("ToUserId");
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("ToUser");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.EventAttendance", b =>
+                {
+                    b.HasOne("HobbyRadarAPI.Models.User", "User")
+                        .WithMany("AttendingEvents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.ScheduledEvent", b =>
+                {
+                    b.HasOne("HobbyRadarAPI.Models.Hobby", "Hobby")
+                        .WithMany()
+                        .HasForeignKey("HobbyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hobby");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.UserAlert", b =>
+                {
+                    b.HasOne("HobbyRadarAPI.Models.User", "User")
+                        .WithMany("Alerts")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -286,6 +521,17 @@ namespace HobbyRadarAPI.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.User", b =>
+                {
+                    b.Navigation("Alerts");
+
+                    b.Navigation("AttendingEvents");
+
+                    b.Navigation("InvitesReceived");
+
+                    b.Navigation("InvitesSent");
                 });
 #pragma warning restore 612, 618
         }
