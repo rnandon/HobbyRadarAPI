@@ -10,7 +10,7 @@ namespace HobbyRadarAPI.Models
         public string LastName { get; set; }
 
         [InverseProperty("User")]
-        public List<UserHobby> UserHobbies { get; set; }
+        public List<UserHobbyRating> UserHobbies { get; set; }
         [InverseProperty("ToUser")]
         public List<ConnectionInvite> InvitesReceived { get; set; }
         [InverseProperty("FromUser")]

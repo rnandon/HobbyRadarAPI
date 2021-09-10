@@ -63,7 +63,7 @@ namespace HobbyRadarAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!HobbyTagExists(id))
+                if (!HobbyTagExists(hobbyId, tagId))
                 {
                     return NotFound();
                 }

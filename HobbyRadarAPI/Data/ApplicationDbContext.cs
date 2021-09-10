@@ -21,7 +21,6 @@ namespace HobbyRadarAPI.Data
         public DbSet<UserAlert> UserAlerts { get; set; }
         public DbSet<ConnectionInvite> ConnectionInvites { get; set; }
         public DbSet<EventAttendance> EventAttendances { get; set; }
-        public DbSet<UserHobby> UserHobbies { get; set; }
         public DbSet<UserHobbyRating> UserHobbyRating { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,7 +30,6 @@ namespace HobbyRadarAPI.Data
             modelBuilder.Entity<HobbyTag>().HasKey(ht => new { ht.HobbyId, ht.TagId });
             modelBuilder.Entity<Connection>().HasKey(c => new { c.User1Id, c.User2Id });
             modelBuilder.Entity<EventAttendance>().HasKey(ea => new { ea.ScheduledEventId, ea.UserId });
-            modelBuilder.Entity<UserHobby>().HasKey(uh => new { uh.UserId, uh.HobbyId });
             modelBuilder.Entity<UserHobbyRating>().HasKey(uhr => new { uhr.UserId, uhr.HobbyId });
 
             modelBuilder.Entity<User>()
