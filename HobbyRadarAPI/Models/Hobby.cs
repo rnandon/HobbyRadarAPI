@@ -11,7 +11,6 @@ namespace HobbyRadarAPI.Models
         public int HobbyId { get; set; }
         public string Name { get; set; }
 
-        [NotMapped]
-        public IEnumerable<Tag> Tags { get; set; }
+        public List<HobbyTag> HobbyTags { get; set; }
     }
 }

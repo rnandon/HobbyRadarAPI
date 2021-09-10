@@ -54,6 +54,11 @@ namespace HobbyRadarAPI.Data
                 .WithOne("User")
                 .HasForeignKey("UserId");
 
+            modelBuilder.Entity<Connection>()
+                .HasOne(c => c.User1)
+                .WithMany(u => u.Connections)
+                .OnDelete(DeleteBehavior.NoAction);
+
 
             modelBuilder.ApplyConfiguration(new RolesConfiguration());
         }

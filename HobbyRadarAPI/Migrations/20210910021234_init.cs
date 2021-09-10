@@ -49,18 +49,6 @@ namespace HobbyRadarAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Connections",
-                columns: table => new
-                {
-                    User1Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    User2Id = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Connections", x => new { x.User1Id, x.User2Id });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Hobbies",
                 columns: table => new
                 {
@@ -74,18 +62,6 @@ namespace HobbyRadarAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "HobbyTags",
-                columns: table => new
-                {
-                    HobbyId = table.Column<int>(type: "int", nullable: false),
-                    TagId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_HobbyTags", x => new { x.HobbyId, x.TagId });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Tags",
                 columns: table => new
                 {
@@ -96,31 +72,6 @@ namespace HobbyRadarAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tags", x => x.TagId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserHobbies",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    HobbyId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserHobbies", x => new { x.UserId, x.HobbyId });
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserHobbyRating",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    HobbyId = table.Column<int>(type: "int", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserHobbyRating", x => new { x.UserId, x.HobbyId });
                 });
 
             migrationBuilder.CreateTable(
@@ -260,18 +211,23 @@ namespace HobbyRadarAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventAttendances",
+                name: "Connections",
                 columns: table => new
                 {
-                    ScheduledEventId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    User1Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    User2Id = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventAttendances", x => new { x.ScheduledEventId, x.UserId });
+                    table.PrimaryKey("PK_Connections", x => new { x.User1Id, x.User2Id });
                     table.ForeignKey(
-                        name: "FK_EventAttendances_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Connections_AspNetUsers_User1Id",
+                        column: x => x.User1Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Connections_AspNetUsers_User2Id",
+                        column: x => x.User2Id,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -322,15 +278,112 @@ namespace HobbyRadarAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "45081da8-4876-4f8b-87d5-be9603330a19", "0822ffe7-c2d9-4b25-976a-91f0a4c6cc54", "User", "USER" });
+            migrationBuilder.CreateTable(
+                name: "UserHobbies",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    HobbyId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserHobbies", x => new { x.UserId, x.HobbyId });
+                    table.ForeignKey(
+                        name: "FK_UserHobbies_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserHobbies_Hobbies_HobbyId",
+                        column: x => x.HobbyId,
+                        principalTable: "Hobbies",
+                        principalColumn: "HobbyId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserHobbyRating",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    HobbyId = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserHobbyRating", x => new { x.UserId, x.HobbyId });
+                    table.ForeignKey(
+                        name: "FK_UserHobbyRating_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserHobbyRating_Hobbies_HobbyId",
+                        column: x => x.HobbyId,
+                        principalTable: "Hobbies",
+                        principalColumn: "HobbyId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HobbyTags",
+                columns: table => new
+                {
+                    HobbyId = table.Column<int>(type: "int", nullable: false),
+                    TagId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HobbyTags", x => new { x.HobbyId, x.TagId });
+                    table.ForeignKey(
+                        name: "FK_HobbyTags_Hobbies_HobbyId",
+                        column: x => x.HobbyId,
+                        principalTable: "Hobbies",
+                        principalColumn: "HobbyId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_HobbyTags_Tags_TagId",
+                        column: x => x.TagId,
+                        principalTable: "Tags",
+                        principalColumn: "TagId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EventAttendances",
+                columns: table => new
+                {
+                    ScheduledEventId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventAttendances", x => new { x.ScheduledEventId, x.UserId });
+                    table.ForeignKey(
+                        name: "FK_EventAttendances_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EventAttendances_ScheduledEvents_ScheduledEventId",
+                        column: x => x.ScheduledEventId,
+                        principalTable: "ScheduledEvents",
+                        principalColumn: "ScheduledEventId",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "ce8ad868-86d6-464f-b7f7-9f9f4d671d0b", "59d62888-9d59-497f-8232-7393eba9ff6a", "Admin", "ADMIN" });
+                values: new object[] { "f2b566d1-23ff-4c3c-840f-1e425c32da23", "5970aadf-1dfb-4100-ad46-2a41d4a7c872", "User", "USER" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "fb3c5042-c66c-4b2f-b636-0bbea862cf73", "dbd1ea66-93df-416e-bea2-4c0396bb5279", "Admin", "ADMIN" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -382,9 +435,19 @@ namespace HobbyRadarAPI.Migrations
                 column: "ToUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Connections_User2Id",
+                table: "Connections",
+                column: "User2Id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_EventAttendances_UserId",
                 table: "EventAttendances",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HobbyTags_TagId",
+                table: "HobbyTags",
+                column: "TagId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ScheduledEvents_HobbyId",
@@ -395,6 +458,16 @@ namespace HobbyRadarAPI.Migrations
                 name: "IX_UserAlerts_UserId",
                 table: "UserAlerts",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserHobbies_HobbyId",
+                table: "UserHobbies",
+                column: "HobbyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserHobbyRating_HobbyId",
+                table: "UserHobbyRating",
+                column: "HobbyId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -427,12 +500,6 @@ namespace HobbyRadarAPI.Migrations
                 name: "HobbyTags");
 
             migrationBuilder.DropTable(
-                name: "ScheduledEvents");
-
-            migrationBuilder.DropTable(
-                name: "Tags");
-
-            migrationBuilder.DropTable(
                 name: "UserAlerts");
 
             migrationBuilder.DropTable(
@@ -445,10 +512,16 @@ namespace HobbyRadarAPI.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Hobbies");
+                name: "ScheduledEvents");
+
+            migrationBuilder.DropTable(
+                name: "Tags");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Hobbies");
         }
     }
 }

@@ -9,17 +9,17 @@ namespace HobbyRadarAPI.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
-        [NotMapped]
+        [InverseProperty("User")]
         public List<UserHobby> UserHobbies { get; set; }
-        [NotMapped]
-        public List<User> Connections { get; set; }
-        [NotMapped]
+        [InverseProperty("ToUser")]
         public List<ConnectionInvite> InvitesReceived { get; set; }
-        [NotMapped]
+        [InverseProperty("FromUser")]
         public List<ConnectionInvite> InvitesSent { get; set; }
-        [NotMapped]
+        [InverseProperty("User")]
         public List<UserAlert> Alerts { get; set; }
-        [NotMapped]
+        [InverseProperty("User")]
         public List<EventAttendance> AttendingEvents { get; set; }
+        [InverseProperty("User1")]
+        public List<Connection> Connections { get; set; }
     }
 }

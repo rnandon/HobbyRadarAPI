@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HobbyRadarAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210909233024_init")]
+    [Migration("20210910021234_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,6 +30,8 @@ namespace HobbyRadarAPI.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("User1Id", "User2Id");
+
+                    b.HasIndex("User2Id");
 
                     b.ToTable("Connections");
                 });
@@ -107,6 +109,8 @@ namespace HobbyRadarAPI.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("HobbyId", "TagId");
+
+                    b.HasIndex("TagId");
 
                     b.ToTable("HobbyTags");
                 });
@@ -262,6 +266,8 @@ namespace HobbyRadarAPI.Migrations
 
                     b.HasKey("UserId", "HobbyId");
 
+                    b.HasIndex("HobbyId");
+
                     b.ToTable("UserHobbies");
                 });
 
@@ -277,6 +283,8 @@ namespace HobbyRadarAPI.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("UserId", "HobbyId");
+
+                    b.HasIndex("HobbyId");
 
                     b.ToTable("UserHobbyRating");
                 });
@@ -310,15 +318,15 @@ namespace HobbyRadarAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "45081da8-4876-4f8b-87d5-be9603330a19",
-                            ConcurrencyStamp = "0822ffe7-c2d9-4b25-976a-91f0a4c6cc54",
+                            Id = "f2b566d1-23ff-4c3c-840f-1e425c32da23",
+                            ConcurrencyStamp = "5970aadf-1dfb-4100-ad46-2a41d4a7c872",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "ce8ad868-86d6-464f-b7f7-9f9f4d671d0b",
-                            ConcurrencyStamp = "59d62888-9d59-497f-8232-7393eba9ff6a",
+                            Id = "fb3c5042-c66c-4b2f-b636-0bbea862cf73",
+                            ConcurrencyStamp = "dbd1ea66-93df-416e-bea2-4c0396bb5279",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -428,6 +436,25 @@ namespace HobbyRadarAPI.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("HobbyRadarAPI.Models.Connection", b =>
+                {
+                    b.HasOne("HobbyRadarAPI.Models.User", "User1")
+                        .WithMany("Connections")
+                        .HasForeignKey("User1Id")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("HobbyRadarAPI.Models.User", "User2")
+                        .WithMany()
+                        .HasForeignKey("User2Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User1");
+
+                    b.Navigation("User2");
+                });
+
             modelBuilder.Entity("HobbyRadarAPI.Models.ConnectionInvite", b =>
                 {
                     b.HasOne("HobbyRadarAPI.Models.User", "FromUser")
@@ -445,13 +472,40 @@ namespace HobbyRadarAPI.Migrations
 
             modelBuilder.Entity("HobbyRadarAPI.Models.EventAttendance", b =>
                 {
+                    b.HasOne("HobbyRadarAPI.Models.ScheduledEvent", "ScheduledEvent")
+                        .WithMany("EventAttendances")
+                        .HasForeignKey("ScheduledEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("HobbyRadarAPI.Models.User", "User")
                         .WithMany("AttendingEvents")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("ScheduledEvent");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.HobbyTag", b =>
+                {
+                    b.HasOne("HobbyRadarAPI.Models.Hobby", "Hobby")
+                        .WithMany("HobbyTags")
+                        .HasForeignKey("HobbyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HobbyRadarAPI.Models.Tag", "Tag")
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hobby");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("HobbyRadarAPI.Models.ScheduledEvent", b =>
@@ -470,6 +524,44 @@ namespace HobbyRadarAPI.Migrations
                     b.HasOne("HobbyRadarAPI.Models.User", "User")
                         .WithMany("Alerts")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.UserHobby", b =>
+                {
+                    b.HasOne("HobbyRadarAPI.Models.Hobby", "Hobby")
+                        .WithMany()
+                        .HasForeignKey("HobbyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HobbyRadarAPI.Models.User", "User")
+                        .WithMany("UserHobbies")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hobby");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.UserHobbyRating", b =>
+                {
+                    b.HasOne("HobbyRadarAPI.Models.Hobby", "Hobby")
+                        .WithMany()
+                        .HasForeignKey("HobbyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HobbyRadarAPI.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hobby");
 
                     b.Navigation("User");
                 });
@@ -525,15 +617,29 @@ namespace HobbyRadarAPI.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("HobbyRadarAPI.Models.Hobby", b =>
+                {
+                    b.Navigation("HobbyTags");
+                });
+
+            modelBuilder.Entity("HobbyRadarAPI.Models.ScheduledEvent", b =>
+                {
+                    b.Navigation("EventAttendances");
+                });
+
             modelBuilder.Entity("HobbyRadarAPI.Models.User", b =>
                 {
                     b.Navigation("Alerts");
 
                     b.Navigation("AttendingEvents");
 
+                    b.Navigation("Connections");
+
                     b.Navigation("InvitesReceived");
 
                     b.Navigation("InvitesSent");
+
+                    b.Navigation("UserHobbies");
                 });
 #pragma warning restore 612, 618
         }

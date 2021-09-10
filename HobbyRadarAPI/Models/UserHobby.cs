@@ -10,11 +10,9 @@ namespace HobbyRadarAPI.Models
     public class UserHobby
     {
         public string UserId { get; set; }
-        public int HobbyId { get; set; }
-
-        [NotMapped]
         public User User { get; set; }
-        [NotMapped]
+
+        public int HobbyId { get; set; }
         public Hobby Hobby { get; set; }
     }
 }

@@ -12,12 +12,13 @@ namespace HobbyRadarAPI.Models
         [ForeignKey("Hobby")]
         public int HobbyId { get; set; }
         public Hobby Hobby { get; set; }
+
         public DateTime Date { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Location { get; set; }
 
-        [NotMapped]
-        public IEnumerable<User> Attendees { get; set; }
+        [InverseProperty("ScheduledEvent")]
+        public IEnumerable<EventAttendance> EventAttendances { get; set; }
     }
 }
