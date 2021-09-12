@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HobbyRadarAPI.Data;
 using HobbyRadarAPI.Models;
 using HobbyRadarAPI.DataTransferObjects;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HobbyRadarAPI.Controllers
 {
@@ -27,6 +28,19 @@ namespace HobbyRadarAPI.Controllers
         public async Task<ActionResult<IEnumerable<UserHobbyRating>>> GetUserHobbyRating()
         {
             return await _context.UserHobbyRating.ToListAsync();
+        }
+
+        // GET: api/UserHobbyRatings?userId=123498yhdfg98y
+        [HttpGet, Authorize]
+        public IActionResult GetUserHobbyRatingsByUser(string userId)
+        {
+            bool userExists = _context.Users.Any(u => u.Id == userId);
+            if (!userExists)
+            {
+                return BadRequest();
+            }
+            var userRatings = _context.UserHobbyRating.Where(uhr => uhr.UserId == userId);
+            return Ok(userRatings);
         }
 
         // GET: api/UserHobbyRatings?userId=xc4534089rwfe&hobbyId=34

@@ -10,6 +10,8 @@ using HobbyRadarAPI.Models;
 
 namespace HobbyRadarAPI.Controllers
 {
+    // TODO: Add search by approximate location
+
     [Route("api/[controller]")]
     [ApiController]
     public class ScheduledEventsController : ControllerBase
