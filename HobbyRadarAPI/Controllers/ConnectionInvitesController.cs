@@ -44,7 +44,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // GET: api/ConnectionInvites/from/id
-        [HttpGet("/from/{id}")]
+        [HttpGet("from/{id}")]
         public IActionResult GetConnectionInvitesBySender(string id)
         {
             bool userExists = _context.Users.Any(u => u.Id == id);
@@ -57,7 +57,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // GET: api/ConnectionInvites/from/id
-        [HttpGet("/to/{id}")]
+        [HttpGet("to/{id}")]
         public IActionResult GetConnectionInvitesByRecipient(string id)
         {
             bool userExists = _context.Users.Any(u => u.Id == id);
@@ -101,7 +101,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // PUT: api/ConnectionInvites/accept/5
-        [HttpPut("/accept/{id}")]
+        [HttpPut("accept/{id}")]
         public IActionResult AcceptConnectionInvite(int id)
         {
             if (!ConnectionInviteExists(id))
@@ -116,7 +116,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // PUT: api/ConnectionInvites/dismiss/5
-        [HttpPut("/dismiss/{id}")]
+        [HttpPut("dismiss/{id}")]
         public IActionResult DismissConnectionInvite(int id)
         {
             if (!ConnectionInviteExists(id))

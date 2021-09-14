@@ -40,6 +40,33 @@ namespace HobbyRadarAPI.Controllers
                 return NotFound();
             }
 
+            List<Hobby> userHobbies = _context.Hobbies.Where(h => _context.UserHobbyRating.Where(uhr => uhr.UserId == id).Select(uhr => uhr.HobbyId).ToList().Contains(h.HobbyId)).ToList();
+            List<HobbyDto> userHobbyList = new List<HobbyDto>();
+            foreach (Hobby hobby in userHobbies)
+            {
+                string name = hobby.Name;
+                int hobbyId = hobby.HobbyId;
+                int rating = _context.UserHobbyRating.Where(uhr => (uhr.HobbyId == hobbyId && uhr.UserId == id)).FirstOrDefault().Rating;
+                List<string> hobbyTags = _context.Tags.Where(t => _context.HobbyTags.Where(ht => ht.HobbyId == hobbyId).Select(ht => ht.TagId).ToList().Contains(t.TagId)).Select(t => t.Name).ToList();
+                HobbyDto userHobby = new HobbyDto() { HobbyId = hobbyId, Name = name, Tags = hobbyTags};
+                userHobbyList.Add(userHobby);
+            }
+            selectedUser.UserHobbies = userHobbyList;
+
+            List<ConnectionInvite> invitesReceived = _context.ConnectionInvites.Where(ci => ci.ToUserId == id).ToList();
+            List<ConnectionInvite> invitesSent = _context.ConnectionInvites.Where(ci => ci.FromUserId == id).ToList();
+            selectedUser.InvitesReceived = invitesReceived;
+            selectedUser.InvitesSent = invitesSent;
+
+            List<UserAlert> userAlerts = _context.UserAlerts.Where(ua => ua.UserId == id).ToList();
+            selectedUser.Alerts = userAlerts;
+
+            List<ScheduledEvent> attendingEvents = _context.ScheduledEvents.Where(se => _context.EventAttendances.Where(ea => ea.UserId == id).Select(ea => ea.ScheduledEventId).ToList().Contains(se.ScheduledEventId)).ToList();
+            selectedUser.AttendingEvents = attendingEvents;
+
+            List<Connection> userConnections = _context.Connections.Where(c => (c.User1Id == id || c.User2Id == id)).ToList();
+            selectedUser.Connections = userConnections;
+
             return Ok(selectedUser);
         }
 

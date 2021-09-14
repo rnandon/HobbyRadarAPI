@@ -22,7 +22,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // GET: api/HobbyTags
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<HobbyTag>>> GetHobbyTags()
         {
             return await _context.HobbyTags.ToListAsync();

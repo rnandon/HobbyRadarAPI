@@ -32,32 +32,6 @@ namespace HobbyRadarAPI.Data
             modelBuilder.Entity<EventAttendance>().HasKey(ea => new { ea.ScheduledEventId, ea.UserId });
             modelBuilder.Entity<UserHobbyRating>().HasKey(uhr => new { uhr.UserId, uhr.HobbyId });
 
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.InvitesReceived)
-                .WithOne("FromUser")
-                .HasForeignKey("FromUserId");
-
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.InvitesSent)
-                .WithOne("ToUser")
-                .HasForeignKey("ToUserId");
-
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.Alerts)
-                .WithOne("User")
-                .HasForeignKey("UserId");
-
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.AttendingEvents)
-                .WithOne("User")
-                .HasForeignKey("UserId");
-
-            modelBuilder.Entity<Connection>()
-                .HasOne(c => c.User1)
-                .WithMany(u => u.Connections)
-                .OnDelete(DeleteBehavior.NoAction);
-
-
             modelBuilder.ApplyConfiguration(new RolesConfiguration());
         }
 

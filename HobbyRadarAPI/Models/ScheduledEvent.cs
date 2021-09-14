@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HobbyRadarAPI.DataTransferObjects;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace HobbyRadarAPI.Models
         public string Description { get; set; }
         public string Location { get; set; }
 
-        [InverseProperty("ScheduledEvent")]
-        public IEnumerable<EventAttendance> EventAttendances { get; set; }
+        [NotMapped]
+        public List<AttendingUserDto> Attendees { get; set; }
     }
 }

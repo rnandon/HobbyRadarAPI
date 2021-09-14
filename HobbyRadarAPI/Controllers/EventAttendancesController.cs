@@ -44,7 +44,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // GET: api/EventAttendances/user/{id}
-        [HttpGet("/user/{id}")]
+        [HttpGet("user/{id}")]
         public IActionResult GetAttendanceByUser(string id)
         {
             bool userExists = _context.Users.Any(u => u.Id == id);
@@ -57,7 +57,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // GET: api/EventAttendances/event/{id}
-        [HttpGet("/event/{id}")]
+        [HttpGet("event/{id}")]
         public IActionResult GetAttendanceByEvent(int id)
         {
             bool eventExists = _context.ScheduledEvents.Any(se => se.ScheduledEventId == id);

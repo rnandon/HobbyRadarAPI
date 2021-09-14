@@ -31,7 +31,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // GET: api/UserHobbyRatings?userId=123498yhdfg98y
-        [HttpGet("/user/{userId}"), Authorize]
+        [HttpGet("user/{userId}"), Authorize]
         public IActionResult GetUserHobbyRatingsByUser(string userId)
         {
             bool userExists = _context.Users.Any(u => u.Id == userId);

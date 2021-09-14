@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using HobbyRadarAPI.DataTransferObjects;
+using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,17 +10,17 @@ namespace HobbyRadarAPI.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
-        [InverseProperty("User")]
-        public List<UserHobbyRating> UserHobbies { get; set; }
-        [InverseProperty("ToUser")]
+        [NotMapped]
+        public List<HobbyDto> UserHobbies { get; set; }
+        [NotMapped]
         public List<ConnectionInvite> InvitesReceived { get; set; }
-        [InverseProperty("FromUser")]
+        [NotMapped]
         public List<ConnectionInvite> InvitesSent { get; set; }
-        [InverseProperty("User")]
+        [NotMapped]
         public List<UserAlert> Alerts { get; set; }
-        [InverseProperty("User")]
-        public List<EventAttendance> AttendingEvents { get; set; }
-        [InverseProperty("User1")]
+        [NotMapped]
+        public List<ScheduledEvent> AttendingEvents { get; set; }
+        [NotMapped]
         public List<Connection> Connections { get; set; }
     }
 }

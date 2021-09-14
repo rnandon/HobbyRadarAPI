@@ -89,7 +89,7 @@ namespace HobbyRadarAPI.Controllers
                 }
             }
 
-            return NoContent();
+            return  Ok(tag);
         }
 
         // POST: api/Tags

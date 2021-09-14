@@ -10,9 +10,9 @@ namespace HobbyRadarAPI.Models
     public class EventAttendance
     {
         public int ScheduledEventId { get; set; }
-        public ScheduledEvent ScheduledEvent{ get; set; }
+        //public ScheduledEvent ScheduledEvent{ get; set; }
 
         public string UserId { get; set; }
-        public User User { get; set; }
+        //public User User { get; set; }
     }
 }

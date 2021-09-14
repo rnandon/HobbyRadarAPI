@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HobbyRadarAPI.Data;
 using HobbyRadarAPI.Models;
+using HobbyRadarAPI.DataTransferObjects;
 
 namespace HobbyRadarAPI.Controllers
 {
@@ -40,6 +41,16 @@ namespace HobbyRadarAPI.Controllers
             {
                 return NotFound();
             }
+
+            List<User> attendingUsers = _context.Users.Where(u => _context.EventAttendances.Where(ea => ea.ScheduledEventId == id).Select(ea => ea.UserId).ToList().Contains(u.Id)).ToList();
+            List<AttendingUserDto> attendees = new List<AttendingUserDto>();
+            foreach (User user in attendingUsers)
+            {
+                AttendingUserDto attendee = new AttendingUserDto() { UserFirstName = user.FirstName, UserLastInitial = user.LastName.Substring(0, 1), UserId = user.Id };
+                attendees.Add(attendee);
+            }
+
+            scheduledEvent.Attendees = attendees;
 
             return scheduledEvent;
         }
@@ -81,6 +92,11 @@ namespace HobbyRadarAPI.Controllers
         public async Task<ActionResult<ScheduledEvent>> PostScheduledEvent(ScheduledEvent scheduledEvent)
         {
             _context.ScheduledEvents.Add(scheduledEvent);
+            foreach (AttendingUserDto attendee in scheduledEvent.Attendees)
+            {
+                EventAttendance ea = new EventAttendance() { ScheduledEventId = scheduledEvent.ScheduledEventId, UserId = attendee.UserId };
+                _context.EventAttendances.Add(ea);
+            }
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetScheduledEvent", new { id = scheduledEvent.ScheduledEventId }, scheduledEvent);

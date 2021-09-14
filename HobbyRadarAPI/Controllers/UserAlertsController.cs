@@ -44,7 +44,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // GET: api/UserAlerts/User/{id}
-        [HttpGet("/User/{id}")]
+        [HttpGet("User/{id}")]
         public IActionResult GetAlertsByUser(string id)
         {
             bool userExists = _context.Users.Any(u => u.Id == id);
