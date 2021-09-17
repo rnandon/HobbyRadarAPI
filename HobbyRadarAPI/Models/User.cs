@@ -9,9 +9,9 @@ namespace HobbyRadarAPI.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string Zip { get; set; }
+        public string UserCity { get; set; }
+        public string UserState { get; set; }
+        public string UserZip { get; set; }
 
         [NotMapped]
         public List<HobbyDto> UserHobbies { get; set; }

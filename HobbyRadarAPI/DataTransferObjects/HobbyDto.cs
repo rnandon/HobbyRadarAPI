@@ -9,6 +9,7 @@ namespace HobbyRadarAPI.DataTransferObjects
     {
         public string Name { get; set; }
         public int HobbyId { get; set; }
+        public int UserRating { get; set; }
         public List<string> Tags { get; set; }
     }
 }

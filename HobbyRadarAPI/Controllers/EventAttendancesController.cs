@@ -129,7 +129,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // DELETE: api/EventAttendances/5
-        [HttpDelete("{id}")]
+        [HttpDelete]
         public IActionResult DeleteEventAttendance(int eventId, string userId)
         {
             var eventAttendance = _context.EventAttendances.Where(ea => ea.ScheduledEventId == eventId && ea.UserId == userId).FirstOrDefault();

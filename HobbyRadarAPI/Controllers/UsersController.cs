@@ -48,7 +48,7 @@ namespace HobbyRadarAPI.Controllers
                 int hobbyId = hobby.HobbyId;
                 int rating = _context.UserHobbyRating.Where(uhr => (uhr.HobbyId == hobbyId && uhr.UserId == id)).FirstOrDefault().Rating;
                 List<string> hobbyTags = _context.Tags.Where(t => _context.HobbyTags.Where(ht => ht.HobbyId == hobbyId).Select(ht => ht.TagId).ToList().Contains(t.TagId)).Select(t => t.Name).ToList();
-                HobbyDto userHobby = new HobbyDto() { HobbyId = hobbyId, Name = name, Tags = hobbyTags};
+                HobbyDto userHobby = new HobbyDto() { HobbyId = hobbyId, Name = name, Tags = hobbyTags, UserRating = rating};
                 userHobbyList.Add(userHobby);
             }
             selectedUser.UserHobbies = userHobbyList;
@@ -70,6 +70,24 @@ namespace HobbyRadarAPI.Controllers
             return Ok(selectedUser);
         }
 
+        // PUT api/Users/uhr
+        [HttpPut("uhr")]
+        public IActionResult UpdateUserHobbyRating([FromBody] UserHobbyRating userHobbyRating)
+        {
+            User selectedUser = _context.Users.Find(userHobbyRating.UserId);
+            if (selectedUser == null)
+            {
+                return NotFound();
+            }
+            UserHobbyRating recordToUpdate = _context.UserHobbyRating.Where(uhr => uhr.HobbyId == userHobbyRating.HobbyId && uhr.UserId == userHobbyRating.UserId).FirstOrDefault();
+            recordToUpdate.Rating = userHobbyRating.Rating;
+            _context.UserHobbyRating.Update(recordToUpdate);
+            _context.SaveChanges();
+
+
+            return Get(userHobbyRating.UserId);
+        }
+
         // PUT api/<UsersController>/njw345t89yhv
         [HttpPut("{id}")]
         public IActionResult Put(string id, [FromBody] UserDto user)
@@ -86,7 +104,38 @@ namespace HobbyRadarAPI.Controllers
             selectedUser.PhoneNumber = user.PhoneNumber;
             _context.Users.Update(selectedUser);
             _context.SaveChanges();
+
             return Ok();
+        }
+
+        // PUT api/<UsersController>/uhr
+        [HttpPost("uhr")]
+        public IActionResult AddUserHobbyRating([FromBody] UserHobbyRating userHobbyRating)
+        {
+            User selectedUser = _context.Users.Find(userHobbyRating.UserId);
+            if (selectedUser == null)
+            {
+                return NotFound();
+            }
+            _context.UserHobbyRating.Add(userHobbyRating);
+            _context.SaveChanges();
+
+            return Get(userHobbyRating.UserId);
+        }
+
+        // PUT api/<UsersController>/event
+        [HttpPost("event")]
+        public IActionResult AddEventAttendance([FromBody] EventAttendance eventAttendance)
+        {
+            User selectedUser = _context.Users.Find(eventAttendance.UserId);
+            if (selectedUser == null)
+            {
+                return NotFound();
+            }
+            _context.EventAttendances.Add(eventAttendance);
+            _context.SaveChanges();
+
+            return Get(eventAttendance.UserId);
         }
 
         // DELETE api/<UsersController>/08ibhnj90

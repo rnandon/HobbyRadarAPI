@@ -28,7 +28,23 @@ namespace HobbyRadarAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ScheduledEvent>>> GetScheduledEvents()
         {
-            return await _context.ScheduledEvents.ToListAsync();
+            List<ScheduledEvent> allEvents = await _context.ScheduledEvents.ToListAsync();
+            foreach (ScheduledEvent scheduledEvent in allEvents)
+            {
+                List<User> attendingUsers = _context.Users.Where(u => _context.EventAttendances.Where(ea => ea.ScheduledEventId == scheduledEvent.ScheduledEventId).Select(ea => ea.UserId).ToList().Contains(u.Id)).ToList();
+                List<AttendingUserDto> attendees = new List<AttendingUserDto>();
+                foreach (User user in attendingUsers)
+                {
+                    AttendingUserDto attendee = new AttendingUserDto() { UserFirstName = user.FirstName, UserLastInitial = user.LastName.Substring(0, 1), UserId = user.Id };
+                    attendees.Add(attendee);
+                }
+
+                scheduledEvent.Attendees = attendees;
+
+                scheduledEvent.Hobby = _context.Hobbies.Find(scheduledEvent.HobbyId);
+            }
+
+            return allEvents;
         }
 
         // GET: api/ScheduledEvents/5

@@ -12,5 +12,9 @@ namespace HobbyRadarAPI.DataTransferObjects
         public string Password { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
+        public string UserCity { get; set; }
+        public string UserState { get; set; }
+        public string UserZip { get; set; }
+
     }
 }
