@@ -135,6 +135,44 @@ namespace HobbyRadarAPI.Controllers
             // Return a list of hobbies with associated scores
             return Ok(hobbyRatings.OrderBy(hr => hr.Score));
         }
+
+        [HttpGet("People")]
+        public IActionResult GetPeople(string userId)
+        {
+            User currentUser = _context.Users.Find(userId);
+            if (currentUser == null)
+            {
+                return BadRequest();
+            }
+            // Getting ids for existing connections to exclude them from new results
+            List<string> alreadyConnectedIds = _context.Users.Where(u => _context.Connections.Where(c => c.User1Id == userId).Select(c => c.User2Id).ToList().Contains(u.Id)).Select(u => u.Id).ToList();
+
+            // People in the area that aren't already connected to the user
+            List<User> localPeople = _context.Users.Where(u => u.UserZip == currentUser.UserZip && !alreadyConnectedIds.Contains(u.Id)).ToList();
+
+            // Weighting local people based on shared hobbies
+            List<int> currentUsersHobbies = _context.UserHobbyRating.Where(uhr => uhr.UserId == userId).Select(uhr => uhr.HobbyId).ToList();
+            List<ConnectionRecommendation> connectionRecommendations = new List<ConnectionRecommendation>();
+            foreach (User person in localPeople)
+            {
+                List<Hobby> personsHobbies = _context.Hobbies.Where(h => _context.UserHobbyRating.Where(uhr => uhr.UserId == person.Id).Select(uhr => uhr.HobbyId).ToList().Contains(h.HobbyId)).ToList();
+                List<string> commonHobbies = personsHobbies.Where(ph => currentUsersHobbies.Contains(ph.HobbyId)).Select(ph => ph.Name).ToList();
+                int rating = commonHobbies.Count;
+
+                // Make a Dto entry for the person to help protect their security
+                ConnectionRecommendation connectionRecommendation = new ConnectionRecommendation()
+                {
+                    FirstName = person.FirstName,
+                    LastInitial = person.LastName.Substring(0, 1),
+                    Id = person.Id,
+                    Rating = rating,
+                    Hobbies = personsHobbies.Select(ph => ph.Name).ToList(),
+                    HobbiesInCommon = commonHobbies
+                };
+            }
+
+            return Ok(connectionRecommendations.OrderBy(cr => cr.Rating));
+        }
     }
 
     public class PopularRating
@@ -162,4 +200,16 @@ namespace HobbyRadarAPI.Controllers
         public string HobbyName { get; set; }
         public int Score { get; set; }
     }
+
+    public class ConnectionRecommendation 
+    {
+        // Secure way to share pertinent info about a person
+        public string FirstName { get; set; }
+        public string LastInitial { get; set; }
+        public string Id { get; set; }
+        public int Rating { get; set; }
+        public List<string> Hobbies { get; set; }
+        public List<string> HobbiesInCommon { get; set; }
+    }
+
 }

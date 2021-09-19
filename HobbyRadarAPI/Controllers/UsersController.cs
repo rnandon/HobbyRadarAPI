@@ -24,7 +24,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         // GET: api/<UsersController>
-        [HttpGet, Authorize(Roles = "Admin")]
+        [HttpGet]
         public IEnumerable<User> Get()
         {
             return _context.Users;
