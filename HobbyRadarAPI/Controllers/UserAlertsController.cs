@@ -8,6 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using HobbyRadarAPI.Data;
 using HobbyRadarAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+using Microsoft.Extensions.Configuration;
+using System.Net;
+using MimeKit;
+using MailKit;
+using MailKit.Net.Smtp;
 
 namespace HobbyRadarAPI.Controllers
 {
@@ -111,6 +118,30 @@ namespace HobbyRadarAPI.Controllers
             _context.UserAlerts.Add(userAlert);
             await _context.SaveChangesAsync();
 
+            string userContactPreference = _context.Users.Find(userAlert.UserId).ContactPreference;
+            switch (userContactPreference)
+            {
+                case "none":
+                    break;
+                case "text":
+                    string userPhone = _context.Users.Find(userAlert.UserId).PhoneNumber;
+                    if (userPhone != "")
+                    {
+                        SendSms(userPhone, userAlert.Message);
+                    }
+                    break;
+                case "email":
+                    string userEmail = _context.Users.Find(userAlert).Email;
+                    string userFirstName = _context.Users.Find(userAlert).FirstName;
+                    if (userEmail != "" && userFirstName != "")
+                    {
+                        SendEmail(userFirstName, userEmail, userAlert.Message);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
             return CreatedAtAction("GetUserAlert", new { id = userAlert.UserAlertId }, userAlert);
         }
 
@@ -133,6 +164,38 @@ namespace HobbyRadarAPI.Controllers
         private bool UserAlertExists(int id)
         {
             return _context.UserAlerts.Any(e => e.UserAlertId == id);
+        }
+
+        private async Task SendSms(string phone, string body)
+        {
+            string accountSid = Environment.GetEnvironmentVariable("TWILIO_ACCOUNT_SID");
+            string authToken = Environment.GetEnvironmentVariable("TWILIO_AUTH_TOKEN");
+
+            TwilioClient.Init(accountSid, authToken);
+
+            var message = await MessageResource.CreateAsync(
+                body: body,
+                from: new Twilio.Types.PhoneNumber("+15754689191"),
+                to: new Twilio.Types.PhoneNumber(phone)
+            );
+        }
+
+        private void SendEmail(string userFirstName, string userEmail, string body)
+        {
+
+            var mailMessage = new MimeMessage();
+            mailMessage.From.Add(new MailboxAddress("Hobby Radar", "hobbyRadarNotifications@gmail.com"));
+            mailMessage.To.Add(new MailboxAddress(userFirstName, userEmail));
+            mailMessage.Subject = "You have a new message on Hobby Radar!";
+            mailMessage.Body = new TextPart("plain") { Text = body };
+
+            using (var smtpClient = new SmtpClient())
+            {
+                smtpClient.Connect("smtp.gmail.com", 587, true);
+                smtpClient.Authenticate("hobbyRadarNotifications@gmail.com", "devCodeCampCapstone");
+                smtpClient.Send(mailMessage);
+                smtpClient.Disconnect(true);
+            }
         }
     }
 }

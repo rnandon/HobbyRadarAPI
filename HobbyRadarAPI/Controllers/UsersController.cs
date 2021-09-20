@@ -102,6 +102,7 @@ namespace HobbyRadarAPI.Controllers
             selectedUser.UserName = user.UserName;
             selectedUser.Email = user.Email;
             selectedUser.PhoneNumber = user.PhoneNumber;
+            selectedUser.ContactPreference = user.ContactPreference;
             _context.Users.Update(selectedUser);
             _context.SaveChanges();
 

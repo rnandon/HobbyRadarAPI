@@ -12,6 +12,7 @@ namespace HobbyRadarAPI.Models
         public string UserCity { get; set; }
         public string UserState { get; set; }
         public string UserZip { get; set; }
+        public string ContactPreference { get; set; }
 
         [NotMapped]
         public List<HobbyDto> UserHobbies { get; set; }
