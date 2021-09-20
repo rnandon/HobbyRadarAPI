@@ -24,6 +24,7 @@ namespace HobbyRadarAPI.Data
         public DbSet<ConnectionInvite> ConnectionInvites { get; set; }
         public DbSet<EventAttendance> EventAttendances { get; set; }
         public DbSet<UserHobbyRating> UserHobbyRating { get; set; }
+        public DbSet<ExternalInvitation> ExternalInvitations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -854,6 +855,8 @@ namespace HobbyRadarAPI.Data
             // Applies changes
             modelBuilder.ApplyConfiguration(new RolesConfiguration());
         }
+
+        public DbSet<HobbyRadarAPI.Models.ExternalInvitation> ExternalInvitation { get; set; }
 
     }
 }

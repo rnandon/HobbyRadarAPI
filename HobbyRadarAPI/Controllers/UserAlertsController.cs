@@ -168,8 +168,9 @@ namespace HobbyRadarAPI.Controllers
 
         private async Task SendSms(string phone, string body)
         {
-            string accountSid = Environment.GetEnvironmentVariable("TWILIO_ACCOUNT_SID");
-            string authToken = Environment.GetEnvironmentVariable("TWILIO_AUTH_TOKEN");
+            Private privateInfo = new Private();
+            string accountSid = privateInfo.AccountSid;
+            string authToken = privateInfo.AuthToken;
 
             TwilioClient.Init(accountSid, authToken);
 
@@ -182,17 +183,18 @@ namespace HobbyRadarAPI.Controllers
 
         private void SendEmail(string userFirstName, string userEmail, string body)
         {
-
+            Private privateInfo = new Private();
             var mailMessage = new MimeMessage();
-            mailMessage.From.Add(new MailboxAddress("Hobby Radar", "hobbyRadarNotifications@gmail.com"));
+            mailMessage.From.Add(new MailboxAddress("Hobby Radar", privateInfo.Email));
             mailMessage.To.Add(new MailboxAddress(userFirstName, userEmail));
             mailMessage.Subject = "You have a new message on Hobby Radar!";
             mailMessage.Body = new TextPart("plain") { Text = body };
 
             using (var smtpClient = new SmtpClient())
             {
-                smtpClient.Connect("smtp.gmail.com", 587, true);
-                smtpClient.Authenticate("hobbyRadarNotifications@gmail.com", "devCodeCampCapstone");
+
+                smtpClient.Connect(privateInfo.Host, privateInfo.Port, true);
+                smtpClient.Authenticate(privateInfo.Email, privateInfo.Password);
                 smtpClient.Send(mailMessage);
                 smtpClient.Disconnect(true);
             }

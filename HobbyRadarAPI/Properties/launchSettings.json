@@ -12,9 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "environmentVariables": {
-        "TWILIO_AUTH_TOKEN": "ebd0ce501002623d01714375b41f662e",
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "TWILIO_ACCOUNT_SID": "AC5934f0b1d2ec86145806270b65a26122"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "HobbyRadarAPI": {
