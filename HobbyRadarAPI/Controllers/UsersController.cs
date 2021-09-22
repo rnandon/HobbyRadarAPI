@@ -3,6 +3,7 @@ using HobbyRadarAPI.DataTransferObjects;
 using HobbyRadarAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,9 +66,65 @@ namespace HobbyRadarAPI.Controllers
             selectedUser.AttendingEvents = attendingEvents;
 
             List<Connection> userConnections = _context.Connections.Where(c => (c.User1Id == id || c.User2Id == id)).ToList();
-            selectedUser.Connections = userConnections;
+            List<string> userConnectionIds = new List<string>();
+            foreach (Connection connection in userConnections)
+            {
+                if (connection.User1Id == id)
+                {
+                    if (!userConnectionIds.Contains(connection.User2Id))
+                    {
+                        userConnectionIds.Add(connection.User2Id);
+                    }
+                } else if (connection.User2Id == id)
+                {
+                    if (!userConnectionIds.Contains(connection.User1Id))
+                    {
+                        userConnectionIds.Add(connection.User1Id);
+                    }
+                }
+            }
+            List<User> connectedUsers = _context.Users.Where(u => userConnectionIds.Contains(u.Id)).ToList();
+            List<UserView> userViews = new List<UserView>();
+            foreach (User connectedUser in connectedUsers)
+            {
+                List<Hobby> connectedUserHobbies = _context.Hobbies.Where(h => _context.UserHobbyRating.Where(uhr => uhr.UserId == connectedUser.Id).Select(uhr => uhr.HobbyId).ToList().Contains(h.HobbyId)).ToList();
+                List<HobbyDto> connectedUserHobbyDtos = new List<HobbyDto>();
+                foreach (Hobby hobby in connectedUserHobbies)
+                {
+                    HobbyDto currentHobby = new HobbyDto() { HobbyId = hobby.HobbyId, Name = hobby.Name, Tags = _context.Tags.Where(t => _context.HobbyTags.Where(ht => ht.HobbyId == hobby.HobbyId).Select(ht => ht.TagId).ToList().Contains(t.TagId)).Select(t => t.Name).ToList() };
+                    connectedUserHobbyDtos.Add(currentHobby);
+                }
+                UserView userView = new UserView() { Id = connectedUser.Id, Name = $"{connectedUser.FirstName} {connectedUser.LastName}", Username = connectedUser.UserName, Hobbies = connectedUserHobbyDtos };
+                userViews.Add(userView);
+            }
+            selectedUser.Connections = userViews;
 
             return Ok(selectedUser);
+        }
+
+        [HttpGet("view/{username}")]
+        public IActionResult ViewUser(string username)
+        {
+            User user = _context.Users.Where(u => u.UserName == username).FirstOrDefault();
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            UserView userView = new UserView();
+            userView.Name = $"{user.FirstName} {user.LastName.Substring(0, 1)}";
+            userView.Username = user.UserName;
+            userView.Id = user.Id;
+
+            List<Hobby> userHobbies = _context.Hobbies.Where(h => _context.UserHobbyRating.Where(uhr => uhr.UserId == user.Id).Select(uhr => uhr.HobbyId).ToList().Contains(h.HobbyId)).ToList();
+            List<HobbyDto> userHobbyDtos = new List<HobbyDto>();
+            foreach (Hobby hobby in userHobbies)
+            {
+                userHobbyDtos.Add(new HobbyDto() { Name = hobby.Name, HobbyId = hobby.HobbyId, UserRating = 1, Tags = _context.Tags.Where(t => _context.HobbyTags.Where(ht => ht.HobbyId == hobby.HobbyId).Select(ht => ht.TagId).ToList().Contains(t.TagId)).Select(t => t.Name).ToList() }) ;
+            }
+            userView.Hobbies = userHobbyDtos;
+
+            return Ok(userView);
         }
 
         // PUT api/Users/uhr
@@ -152,5 +209,18 @@ namespace HobbyRadarAPI.Controllers
             _context.SaveChanges();
             return NoContent();
         }
+    }
+
+    public class UserView
+    {
+        public string Name { get; set; }
+        public string Username { get; set; }
+        public List<HobbyDto> Hobbies { get; set; }
+        public string Id { get; set; }
+    }
+
+    class UserWithConnections : User
+    {
+        public List<UserView> ConnectedUsers { get; set; }
     }
 }

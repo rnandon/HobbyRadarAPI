@@ -22,7 +22,7 @@ namespace HobbyRadarAPI.Controllers
         }
 
         [HttpGet("Popular")]
-        public IActionResult GetPopularHobbies()
+        public List<PopularRating> GetPopularHobbies()
         {
             // Assesses every hobby and gathers a total popularity score for each one.
             // Popularity score is calculated as the total of all ratings for that hobby, along with to total possible ratings and the overall rating.
@@ -40,29 +40,34 @@ namespace HobbyRadarAPI.Controllers
             {
                 // Get all the rating information for the current hobby
                 List<int> hobbyRatings = _context.UserHobbyRating.Where(uhr => uhr.HobbyId == hobby.HobbyId).Select(uhr => uhr.Rating).ToList();
+                hobbyRatings = PurgeZeroValues(hobbyRatings);
                 int ratingCount = hobbyRatings.Count;
-                int totalPossibleRating = ratingCount * 5; // Assuming max rating of 5
-                int totalRating = hobbyRatings.Sum();
-                double overallRating = Math.Round((double)(totalRating / totalPossibleRating), 1);
-                // Make and add a new PopularRating to the list for sorting.
-                PopularRating currentRating = new PopularRating()
+                double totalPossibleRating = ratingCount * 5; // Assuming max rating of 5
+                double totalRating = hobbyRatings.Sum();
+                double overallRating = totalPossibleRating == 0? 0 : Math.Round((double)(totalRating / totalPossibleRating) * 5, 2);
+
+                if (totalRating != 0)
                 {
-                    HobbyName = hobby.Name,
-                    HobbyId = hobby.HobbyId,
-                    OverallRating = overallRating,
-                    TotalRating = totalRating,
-                    TotalPossibleRating = totalPossibleRating,
-                    RatingCount = ratingCount
-                };
-                ratings.Add(currentRating);
+                    // Make and add a new PopularRating to the list for sorting.
+                    PopularRating currentRating = new PopularRating()
+                    {
+                        HobbyName = hobby.Name,
+                        HobbyId = hobby.HobbyId,
+                        OverallRating = overallRating,
+                        TotalRating = totalRating,
+                        TotalPossibleRating = totalPossibleRating,
+                        RatingCount = ratingCount
+                    };
+                    ratings.Add(currentRating);
+                }
             }
 
             // Retrun ratings sorted by overall rating first, then by rating count. That way the most popular hobbies actually come first.
-            return Ok(ratings.OrderBy(r => r.OverallRating).OrderBy(r => r.RatingCount));
+            return ratings.OrderByDescending(r => r.OverallRating).ToList();
         }
 
         [HttpGet("Related")]
-        public IActionResult GetRelatedHobbies(string userId)
+        public List<RelatedHobbyRating> GetRelatedHobbies(string userId)
         {
             // Generates a sorted list of hobbies, scored by a tag relationship to the user's favorite hobbies.
             // Flow: Check that the user exists, then get all their hobby ratings. 
@@ -75,10 +80,6 @@ namespace HobbyRadarAPI.Controllers
 
             // Check that the user exists
             bool userExists = _context.Users.Any(u => u.Id == userId);
-            if (!userExists)
-            {
-                return BadRequest();
-            }
             User user = _context.Users.Find(userId);
 
             // Get the user's hobby ratings
@@ -121,7 +122,7 @@ namespace HobbyRadarAPI.Controllers
             {
                 // For every hobby, get the tags that are both associated with the current hobby and are in the list of rated tags.
                 int totalHobbyScore = 0;
-                List<HobbyTag> hobbyTags = _context.HobbyTags.Where(ht => (ht.HobbyId == hobby.HobbyId) && (tagRatings.Exists(tr => tr.TagId == ht.TagId))).ToList();
+                List<HobbyTag> hobbyTags = _context.HobbyTags.Where(ht => (ht.HobbyId == hobby.HobbyId) && (tagRatings.Select(tr => tr.TagId).ToList().Contains(ht.TagId))).ToList();
                 foreach (HobbyTag hobbyTag in hobbyTags)
                 {
                     // Update the hobby's score with the scored tag's rating
@@ -133,22 +134,18 @@ namespace HobbyRadarAPI.Controllers
             }
 
             // Return a list of hobbies with associated scores
-            return Ok(hobbyRatings.OrderBy(hr => hr.Score));
+            return hobbyRatings.OrderByDescending(hr => hr.Score).ToList();
         }
 
         [HttpGet("People")]
-        public IActionResult GetPeople(string userId)
+        public List<ConnectionRecommendation> GetPeople(string userId)
         {
             User currentUser = _context.Users.Find(userId);
-            if (currentUser == null)
-            {
-                return BadRequest();
-            }
             // Getting ids for existing connections to exclude them from new results
             List<string> alreadyConnectedIds = _context.Users.Where(u => _context.Connections.Where(c => c.User1Id == userId).Select(c => c.User2Id).ToList().Contains(u.Id)).Select(u => u.Id).ToList();
 
             // People in the area that aren't already connected to the user
-            List<User> localPeople = _context.Users.Where(u => u.UserZip == currentUser.UserZip && !alreadyConnectedIds.Contains(u.Id)).ToList();
+            List<User> localPeople = _context.Users.Where(u => u.UserZip == currentUser.UserZip && !alreadyConnectedIds.Contains(u.Id) && u.Id != currentUser.Id).ToList();
 
             // Weighting local people based on shared hobbies
             List<int> currentUsersHobbies = _context.UserHobbyRating.Where(uhr => uhr.UserId == userId).Select(uhr => uhr.HobbyId).ToList();
@@ -164,15 +161,111 @@ namespace HobbyRadarAPI.Controllers
                 {
                     FirstName = person.FirstName,
                     LastInitial = person.LastName.Substring(0, 1),
-                    Id = person.Id,
+                    Username = person.UserName,
                     Rating = rating,
                     Hobbies = personsHobbies.Select(ph => ph.Name).ToList(),
                     HobbiesInCommon = commonHobbies
                 };
+
+                connectionRecommendations.Add(connectionRecommendation);
             }
 
-            return Ok(connectionRecommendations.OrderBy(cr => cr.Rating));
+            return connectionRecommendations.OrderByDescending(cr => cr.Rating).ToList();
         }
+
+        [HttpGet("LocallyPopular")]
+        public List<PopularRating> GetLocallyPopularHobbies(string userId)
+        {
+            // This method is *almost* identical to GetPopularHobbies.
+            // The only difference is that instead of curating ratings for all hobbies, this one is filtered by the user's zipcode.
+
+            User user = _context.Users.Find(userId);
+            List<string> localUserIds = _context.Users.Where(u => u.UserZip == user.UserZip).Select(u => u.Id).ToList();
+
+            // Just get hobbies that users in the given user's zip code are following.
+            List<Hobby> localHobbies = _context.Hobbies.Where(h => _context.UserHobbyRating.Where(uhr => localUserIds.Contains(uhr.UserId)).Select(uhr => uhr.HobbyId).ToList().Contains(h.HobbyId)).ToList();
+
+            List<PopularRating> ratings = new List<PopularRating>();
+            foreach (Hobby hobby in localHobbies)
+            {
+                // Get all the rating information for the current hobby
+                List<int> hobbyRatings = _context.UserHobbyRating.Where(uhr => uhr.HobbyId == hobby.HobbyId && localUserIds.Contains(uhr.UserId)).Select(uhr => uhr.Rating).ToList();
+                hobbyRatings = PurgeZeroValues(hobbyRatings);
+                int ratingCount = hobbyRatings.Count;
+                double totalPossibleRating = ratingCount * 5; // Assuming max rating of 5
+                double totalRating = hobbyRatings.Sum();
+                double overallRating = totalPossibleRating == 0 ? 0 : Math.Round((double)(totalRating / totalPossibleRating) * 5, 2);
+                if (totalRating != 0)
+                {
+                    // Make and add a new PopularRating to the list for sorting.
+                    PopularRating currentRating = new PopularRating()
+                    {
+                        HobbyName = hobby.Name,
+                        HobbyId = hobby.HobbyId,
+                        OverallRating = overallRating,
+                        TotalRating = totalRating,
+                        TotalPossibleRating = totalPossibleRating,
+                        RatingCount = ratingCount
+                    };
+                    ratings.Add(currentRating); 
+                }
+            }
+
+            // Retrun ratings sorted by overall rating first, then by rating count. That way the most popular hobbies actually come first.
+            return ratings.OrderByDescending(r => r.OverallRating).ToList();
+
+        }
+
+        [HttpGet]
+        public IActionResult GetRecommendations(string pop, string rel, string peo, string loc, string userId)
+        {
+            AllRecommendations recommendations = new AllRecommendations();
+            bool userExists = _context.Users.Any(u => u.Id == userId);
+
+            if (pop == "y")
+            {
+                var popular = GetPopularHobbies();
+                recommendations.PopularHobbies = popular;
+            }
+            if (userExists && rel == "y")
+            {
+                var relatedHobbies = GetRelatedHobbies(userId);
+                recommendations.RelatedHobbies = relatedHobbies;
+            }
+            if (userExists && peo == "y")
+            {
+                var people = GetPeople(userId);
+                recommendations.PossibleConnections = people;
+            }
+            if (userExists && loc == "y")
+            {
+                var locallyPopular = GetLocallyPopularHobbies(userId);
+                recommendations.LocallyPopularHobbies = locallyPopular;
+            }
+
+            return Ok(recommendations);
+        }
+
+        public List<int> PurgeZeroValues(List<int> list)
+        {
+            List<int> output = new List<int>();
+            foreach (int item in list)
+            {
+                if (item != 0)
+                {
+                    output.Add(item);
+                }
+            }
+            return output;
+        }
+    }
+
+    public class AllRecommendations
+    {
+        public List<PopularRating> PopularHobbies { get; set; }
+        public List<RelatedHobbyRating> RelatedHobbies { get; set; }
+        public List<ConnectionRecommendation> PossibleConnections { get; set; }
+        public List<PopularRating> LocallyPopularHobbies { get; set; }
     }
 
     public class PopularRating
@@ -181,8 +274,8 @@ namespace HobbyRadarAPI.Controllers
         public string HobbyName { get; set; }
         public int HobbyId { get; set; }
         public double OverallRating { get; set; }
-        public int TotalRating { get; set; }
-        public int TotalPossibleRating { get; set; }
+        public double TotalRating { get; set; }
+        public double TotalPossibleRating { get; set; }
         public int RatingCount { get; set; }
     }
 
@@ -206,7 +299,7 @@ namespace HobbyRadarAPI.Controllers
         // Secure way to share pertinent info about a person
         public string FirstName { get; set; }
         public string LastInitial { get; set; }
-        public string Id { get; set; }
+        public string Username { get; set; }
         public int Rating { get; set; }
         public List<string> Hobbies { get; set; }
         public List<string> HobbiesInCommon { get; set; }

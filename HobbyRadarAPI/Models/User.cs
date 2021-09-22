@@ -1,4 +1,5 @@
-﻿using HobbyRadarAPI.DataTransferObjects;
+﻿using HobbyRadarAPI.Controllers;
+using HobbyRadarAPI.DataTransferObjects;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -25,6 +26,6 @@ namespace HobbyRadarAPI.Models
         [NotMapped]
         public List<ScheduledEvent> AttendingEvents { get; set; }
         [NotMapped]
-        public List<Connection> Connections { get; set; }
+        public List<UserView> Connections { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HobbyRadarAPI.Data;
 using HobbyRadarAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using HobbyRadarAPI.DataTransferObjects;
 
 namespace HobbyRadarAPI.Controllers
 {
@@ -133,12 +134,20 @@ namespace HobbyRadarAPI.Controllers
         // POST: api/ConnectionInvites
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ConnectionInvite>> PostConnectionInvite(ConnectionInvite connectionInvite)
+        public IActionResult PostConnectionInvite(ConnectionInviteDto ci)
         {
-            _context.ConnectionInvites.Add(connectionInvite);
-            await _context.SaveChangesAsync();
+            bool fromUserExists = _context.Users.Any(u => u.Id == ci.FromUserId);
+            bool toUserExists = _context.Users.Any(u => u.Id == ci.ToUserId);
+            ConnectionInvite connectionInvite = new ConnectionInvite() { FromUserId = ci.FromUserId, ToUserId = ci.ToUserId, Accepted = ci.Accepted == "true" ? true : false, Dismissed = ci.Dismissed == "true" ? true : false, Message = ci.Message, DateSent = new DateTime(ci.DateSent) };
 
-            return CreatedAtAction("GetConnectionInvite", new { id = connectionInvite.ConnectionInviteId }, connectionInvite);
+            _context.ConnectionInvites.Add(connectionInvite);
+            _context.SaveChanges();
+
+            connectionInvite = _context.ConnectionInvites.Where(i => i.FromUserId == ci.FromUserId && i.ToUserId == ci.ToUserId).FirstOrDefault();
+
+            return Ok(connectionInvite);
+            var body = Request.Body;
+            return Ok();
         }
 
         // DELETE: api/ConnectionInvites/5
