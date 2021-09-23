@@ -125,7 +125,7 @@ namespace HobbyRadarAPI.Controllers
 
             foreach (string tag in hobby.Tags)
             {
-                Tag associatedTag = _context.Tags.Find(tag);
+                Tag associatedTag = _context.Tags.Where(t => t.Name == tag).FirstOrDefault();
                 if (associatedTag == null)
                 {
                     // Make a new tag entry

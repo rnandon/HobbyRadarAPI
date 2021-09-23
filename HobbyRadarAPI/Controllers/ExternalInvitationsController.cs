@@ -135,7 +135,7 @@ namespace HobbyRadarAPI.Controllers
                 case "email":
                     SendEmail(ei.Name, ei.ContactInfo, fromUserName);
                     break;
-                case "text":
+                case "phone":
                     SendSms(ei.Name, ei.ContactInfo, fromUserName);
                     break;
                 default:
@@ -150,12 +150,12 @@ namespace HobbyRadarAPI.Controllers
             mailMessage.From.Add(new MailboxAddress("Hobby Radar", privateInfo.Email));
             mailMessage.To.Add(new MailboxAddress(name, email));
             mailMessage.Subject = $"{fromName} has invited you to join Hobby Radar!";
-            mailMessage.Body = new TextPart("plain") { Text = "Join here: https://www.hobbyradar.com" };
+            mailMessage.Body = new TextPart("plain") { Text = "Join here: https://www.hobbyradar.co/register" };
 
             using (var smtpClient = new SmtpClient())
             {
 
-                smtpClient.Connect(privateInfo.Host, privateInfo.Port, true);
+                smtpClient.Connect(privateInfo.Host, privateInfo.Port, false);
                 smtpClient.Authenticate(privateInfo.Email, privateInfo.Password);
                 smtpClient.Send(mailMessage);
                 smtpClient.Disconnect(true);
@@ -171,7 +171,7 @@ namespace HobbyRadarAPI.Controllers
             TwilioClient.Init(accountSid, authToken);
 
             var message = MessageResource.Create(
-                body: $"Hello {name}, {fromName} invited you to join Hobby Radar! Join here: https://www.hobbyradar.com",
+                body: $"Hello {name}, {fromName} invited you to join Hobby Radar! Join here: https://www.hobbyradar.co/register",
                 from: new Twilio.Types.PhoneNumber("+15754689191"),
                 to: new Twilio.Types.PhoneNumber(phone)
             );

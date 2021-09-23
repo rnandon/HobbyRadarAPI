@@ -105,14 +105,15 @@ namespace HobbyRadarAPI.Controllers
         // POST: api/ScheduledEvents
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ScheduledEvent>> PostScheduledEvent(ScheduledEvent scheduledEvent)
+        public async Task<ActionResult<ScheduledEvent>> PostScheduledEvent(ScheduledEventDto scheduledEventDto)
         {
-            _context.ScheduledEvents.Add(scheduledEvent);
-            foreach (AttendingUserDto attendee in scheduledEvent.Attendees)
+            bool hobbyExists = _context.Hobbies.Any(h => h.HobbyId == scheduledEventDto.HobbyId);
+            if (!hobbyExists)
             {
-                EventAttendance ea = new EventAttendance() { ScheduledEventId = scheduledEvent.ScheduledEventId, UserId = attendee.UserId };
-                _context.EventAttendances.Add(ea);
+                return BadRequest();
             }
+            ScheduledEvent scheduledEvent = MakeScheduledEvent(scheduledEventDto);
+            _context.ScheduledEvents.Add(scheduledEvent);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetScheduledEvent", new { id = scheduledEvent.ScheduledEventId }, scheduledEvent);
@@ -138,5 +139,14 @@ namespace HobbyRadarAPI.Controllers
         {
             return _context.ScheduledEvents.Any(e => e.ScheduledEventId == id);
         }
+
+
+        public ScheduledEvent MakeScheduledEvent(ScheduledEventDto sed)
+        {
+            // Expects data to be validated before calling this method!!!
+            DateTime validDate = new DateTime(sed.Date);
+            return new ScheduledEvent() { HobbyId = sed.HobbyId, Date = validDate, Name = sed.Name, Description = sed.Description, Location = sed.Location };
+        }
+
     }
 }
