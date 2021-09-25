@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31613.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HobbyRadarAPI", "HobbyRadarAPI\HobbyRadarAPI.csproj", "{FB1D939C-2283-49E0-AC61-AD23F357DAF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HobbyRadarAPI", "HobbyRadarAPI\HobbyRadarAPI.csproj", "{F42E9A86-0D5B-4ECE-BB22-663475BF4F31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FB1D939C-2283-49E0-AC61-AD23F357DAF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB1D939C-2283-49E0-AC61-AD23F357DAF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB1D939C-2283-49E0-AC61-AD23F357DAF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB1D939C-2283-49E0-AC61-AD23F357DAF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F42E9A86-0D5B-4ECE-BB22-663475BF4F31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F42E9A86-0D5B-4ECE-BB22-663475BF4F31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F42E9A86-0D5B-4ECE-BB22-663475BF4F31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F42E9A86-0D5B-4ECE-BB22-663475BF4F31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {A5FF5264-F106-403F-BE0E-FC45E6E97AFA}
+		SolutionGuid = {DF4B4D26-5FB9-4C36-91DD-9BF833E66474}
 	EndGlobalSection
 EndGlobal
