@@ -246,6 +246,36 @@ namespace HobbyRadarAPI.Controllers
             return Ok(recommendations);
         }
 
+        [HttpGet("related/{hobbyId}")]
+        public IActionResult GetRelatedHobbies(int hobbyId)
+        {
+            bool hobbyExists = _context.Hobbies.Any(h => h.HobbyId == hobbyId);
+            if (!hobbyExists)
+            {
+                return BadRequest();
+            }
+
+            List<int> hobbyTags = _context.Tags.Where(t => _context.HobbyTags.Where(ht => ht.HobbyId == hobbyId).Select(ht => ht.TagId).ToList().Contains(t.TagId)).Select(t => t.TagId).ToList();
+            List<Hobby> allHobbies = _context.Hobbies.Where(h => h.HobbyId != hobbyId).ToList();
+
+            List<RelatedHobbyRating> relatedHobbies = new List<RelatedHobbyRating>();
+            foreach (Hobby hobby in allHobbies)
+            {
+                List<int> associatedTagIds = _context.Tags.Where(t => _context.HobbyTags.Where(ht => ht.HobbyId == hobby.HobbyId).Select(ht => ht.TagId).ToList().Contains(t.TagId)).Select(t => t.TagId).ToList();
+                RelatedHobbyRating currentHobbyRating = new RelatedHobbyRating() { HobbyId = hobby.HobbyId, HobbyName = hobby.Name, Score = 0 };
+                foreach (int ati in associatedTagIds)
+                {
+                    if (hobbyTags.Contains(ati))
+                    {
+                        currentHobbyRating.Score++;
+                    }
+                }
+                relatedHobbies.Add(currentHobbyRating);
+            }
+
+            return Ok(relatedHobbies.OrderByDescending(rh => rh.Score));
+        }
+
         public List<int> PurgeZeroValues(List<int> list)
         {
             List<int> output = new List<int>();
