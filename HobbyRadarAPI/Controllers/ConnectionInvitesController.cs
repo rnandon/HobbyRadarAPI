@@ -57,7 +57,7 @@ namespace HobbyRadarAPI.Controllers
             return Ok(invitesBySender);
         }
 
-        // GET: api/ConnectionInvites/from/id
+        // GET: api/ConnectionInvites/to/id
         [HttpGet("to/{id}")]
         public IActionResult GetConnectionInvitesByRecipient(string id)
         {
@@ -68,6 +68,27 @@ namespace HobbyRadarAPI.Controllers
             }
             List<ConnectionInvite> invitesByRecipient = _context.ConnectionInvites.Where(ci => ci.ToUserId == id).ToList();
             return Ok(invitesByRecipient);
+        }
+
+        // GET: api/ConnectionInvites/to/id/users
+        [HttpGet("to/{id}/users")]
+        public IActionResult GetUsersByConnectionInvitesToRecipient(string id)
+        {
+            bool userExists = _context.Users.Any(u => u.Id == id);
+            if (!userExists)
+            {
+                return BadRequest();
+            }
+            List<UserView> userViews = new List<UserView>();
+            List<string> userIds = _context.ConnectionInvites.Where(ci => ci.ToUserId == id).Select(ci => ci.FromUserId).ToList();
+            foreach (string userId in userIds)
+            {
+                User fromUser = _context.Users.Find(userId);
+                UserView currentUser = new UserView() { Id = userId, Name = $"{ fromUser.FirstName } { fromUser.LastName.Substring(0, 1) }", Username = fromUser.UserName };
+                userViews.Add(currentUser);
+            }
+
+            return Ok(userViews);
         }
 
         // PUT: api/ConnectionInvites/5
@@ -111,7 +132,12 @@ namespace HobbyRadarAPI.Controllers
             }
             ConnectionInvite invite = _context.ConnectionInvites.Find(id);
             invite.Accepted = true;
+            invite.Dismissed = true;
             _context.ConnectionInvites.Update(invite);
+
+            Connection connection = new Connection() { User1Id = invite.FromUserId, User2Id = invite.ToUserId };
+            _context.Connections.Add(connection);
+
             _context.SaveChanges();
             return Ok();
         }

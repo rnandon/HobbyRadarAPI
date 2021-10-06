@@ -147,7 +147,7 @@ namespace HobbyRadarAPI.Controllers
 
         // PUT api/<UsersController>/njw345t89yhv
         [HttpPut("{id}")]
-        public IActionResult Put(string id, [FromBody] UserDto user)
+        public IActionResult Put(string id, [FromBody] UserForUpdateDto user)
         {
             User selectedUser = _context.Users.Find(id);
             if (selectedUser == null)
@@ -160,10 +160,13 @@ namespace HobbyRadarAPI.Controllers
             selectedUser.Email = user.Email;
             selectedUser.PhoneNumber = user.PhoneNumber;
             selectedUser.ContactPreference = user.ContactPreference;
+            selectedUser.UserCity = user.UserCity;
+            selectedUser.UserState = user.UserState;
+            selectedUser.UserZip = user.UserZip;
             _context.Users.Update(selectedUser);
             _context.SaveChanges();
 
-            return Ok();
+            return Ok(selectedUser);
         }
 
         // PUT api/<UsersController>/uhr

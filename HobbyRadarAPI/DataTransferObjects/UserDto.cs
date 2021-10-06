@@ -14,4 +14,11 @@ namespace HobbyRadarAPI.DataTransferObjects
         public string PhoneNumber { get; set; }
         public string ContactPreference { get; set; }
     }
+
+    public class UserForUpdateDto : UserDto
+    {
+        public string UserCity { get; set; }
+        public string UserState { get; set; }
+        public string UserZip { get; set; }
+    }
 }

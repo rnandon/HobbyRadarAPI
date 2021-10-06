@@ -136,11 +136,23 @@ namespace HobbyRadarAPI.Controllers
             }
 
             Connection connection = _context.Connections.Where(c => c.User1Id == user1Id && c.User2Id == user2Id).FirstOrDefault();
+            Connection alternateConnection = _context.Connections.Where(c => c.User2Id == user1Id && c.User1Id == user2Id).FirstOrDefault();
 
-            _context.Connections.Remove(connection);
-            await _context.SaveChangesAsync();
+            if (connection != null)
+            {
+                _context.Connections.Remove(connection);
+                await _context.SaveChangesAsync();
 
-            return NoContent();
+                return NoContent();
+            } else if (alternateConnection != null)
+            {
+                _context.Connections.Remove(alternateConnection);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+
+            return NotFound();
         }
 
         private bool ConnectionExists(string user1Id, string user2Id)
